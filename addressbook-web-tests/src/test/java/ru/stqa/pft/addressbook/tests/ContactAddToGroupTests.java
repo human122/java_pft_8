@@ -1,81 +1,77 @@
 package ru.stqa.pft.addressbook.tests;
 
 
-import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import ru.stqa.pft.addressbook.model.ContactData;
+import ru.stqa.pft.addressbook.model.Contacts;
 import ru.stqa.pft.addressbook.model.GroupData;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ContactAddToGroupTests extends TestBase {
 
+    @BeforeMethod
+    public void ensurePreconditions() {
+        if (app.contact().all().size() == 0) {
+            app.goTo().groupPage();
+            if (app.group().all().size() == 0) {
+                app.group().create(new GroupData().withName("test1"));
+            }
+            app.goTo().homePage();
+            app.contact().create(
+                    new ContactData().withFirstname("Ivan").withLastname("Ivanov").withCompany("My Company")
+                            .withAddress("My Address").withHomePhone("My home telephone")
+                            .withEmail("my_email@gmail.com").withGroup("[none]"));
+        }
+    }
+
     @Test
     public void testContactAddToGroup() throws Exception {
-        if (!app.getContactHelper().isThereAContact()) {
-            app.getNavigationHelper().gotoGroupPage();
-            if (!app.getGroupHelper().isThereAGroup()) {
-                app.getGroupHelper().createGroup(new GroupData("test1", "test2", "test3"));
-            }
-            app.getNavigationHelper().gotoHomePage();
-            app.getContactHelper().createContact(
-                    new ContactData(
-                            "Ivan",
-                            "Ivanov",
-                            "My Company",
-                            "My Address",
-                            "My home telephone",
-                            "my_email@gmail.com",
-                            "[none]"));
-        }
-        app.getNavigationHelper().gotoGroupPage();
-        List<GroupData> groups = app.getGroupHelper().getGroupList();
-        app.getNavigationHelper().gotoHomePage();
-        List<ContactData> contacts = app.getContactHelper().getContactList();
-        for (GroupData group : groups) {
-            app.getNavigationHelper().gotoGroupContacts(group.getId());
-            List<ContactData> contactsInGroupBefore = app.getContactHelper().getContactList();
-            if (contactsInGroupBefore.size() == 0) {
-                app.getNavigationHelper().gotoGroupContacts("");
-                app.getContactHelper().addContactToGroup(contacts.size() - 1, Integer.toString(group.getId()));
-                app.getNavigationHelper().gotoHomePage();
-                app.getNavigationHelper().gotoGroupContacts(group.getId());
-                List<ContactData> contactsInGroupAfter = app.getContactHelper().getContactList();
+        app.goTo().groupPage();
+        Iterator<GroupData> groups = app.group().all().iterator();
+        app.goTo().homePage();
+        Set<ContactData> contacts = app.contact().all();
+        String allGroups = "";
+        while (groups.hasNext()) {
+            GroupData group = groups.next();
+            app.goTo().groupContacts(group.id());
+            Contacts contactsBefore = app.contact().all();
+            if (contactsBefore.size() == 0) {
+                app.goTo().homePage(allGroups);
+                ContactData contact = contacts.iterator().next();
+                app.contact().addToGroup(contact.id(), group.id());
+                app.goTo().homePage();
+                app.goTo().groupContacts(group.id());
+                Contacts contactsAfter = app.contact().all();
 
-                Assert.assertEquals(contactsInGroupAfter.size(), contactsInGroupBefore.size() + 1);
-                ContactData contact = contacts.get(contacts.size() - 1);
-                contactsInGroupBefore.add(contact);
-                Assert.assertEquals(contactsInGroupBefore, contactsInGroupAfter);
+                assertThat(contactsAfter.size(), equalTo(contactsBefore.size() + 1));
+                assertThat(contactsAfter, equalTo(contactsBefore.withAdded(contact)));
                 break;
-            } else if (contacts.size() > contactsInGroupBefore.size()) {
+            } else if (contacts.size() > contactsBefore.size()) {
                 for (ContactData contact : contacts) {
-                    if (!contactsInGroupBefore.contains(contact)) {
-                        app.getNavigationHelper().gotoGroupContacts("");
-                        app.getContactHelper().addContactToGroup(contacts.indexOf(contact), Integer.toString(group.getId()));
-                        app.getNavigationHelper().gotoHomePage();
-                        app.getNavigationHelper().gotoGroupContacts(group.getId());
-                        List<ContactData> contactsInGroupAfter = app.getContactHelper().getContactList();
+                    if (!contactsBefore.contains(contact)) {
+                        app.goTo().homePage(allGroups);
+                        app.contact().addToGroup(contact.id(), group.id());
+                        app.goTo().homePage();
+                        app.goTo().groupContacts(group.id());
+                        Contacts contactsAfter = app.contact().all();
 
-                        Assert.assertEquals(contactsInGroupAfter.size(), contactsInGroupBefore.size() + 1);
-                        contactsInGroupBefore.add(contact);
-                        Comparator<? super ContactData> byId = (c1, c2) -> Integer.compare(c1.getId(), c2.getId());
-                        contactsInGroupBefore.sort(byId);
-                        contactsInGroupAfter.sort(byId);
-                        Assert.assertEquals(contactsInGroupBefore, contactsInGroupAfter);
+                        assertThat(contactsAfter.size(), equalTo(contactsBefore.size() + 1));
+                        assertThat(contactsAfter, equalTo(contactsBefore.withAdded(contact)));
                         break;
                     }
                 }
+                System.out.println("Last break");
                 break;
-//            } else if (contacts.size() == contactsInGroupBefore.size()
-//                    && group.getId() == groups.get(groups.size() - 1).getId()) {
-//                System.out.println("All Contacts in all Groups!!!");
-//                continue;
-            } else if (contacts.size() == contactsInGroupBefore.size()) {
+            } else if (contacts.size() == contactsBefore.size()) {
                 continue;
             }
+            System.out.println("All Contacts in all Groups!!!");
         }
-        System.out.println("All Contacts in all Groups!!!");
     }
-
 }

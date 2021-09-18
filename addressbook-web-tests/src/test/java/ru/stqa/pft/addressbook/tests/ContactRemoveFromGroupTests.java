@@ -1,52 +1,52 @@
 package ru.stqa.pft.addressbook.tests;
 
-import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import ru.stqa.pft.addressbook.model.ContactData;
+import ru.stqa.pft.addressbook.model.Contacts;
 import ru.stqa.pft.addressbook.model.GroupData;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.Iterator;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ContactRemoveFromGroupTests extends TestBase {
 
-    @Test
-    public void testContactRemoveFromGroup() {
-        if (!app.getContactHelper().isThereAContact()) {
-            app.getNavigationHelper().gotoGroupPage();
-            if (!app.getGroupHelper().isThereAGroup()) {
-                app.getGroupHelper().createGroup(new GroupData("test1", "test2", "test3"));
+    @BeforeMethod
+    public void ensurePreconditions() {
+        if (app.contact().list().size() == 0) {
+            app.goTo().groupPage();
+            if (app.group().list().size() == 0) {
+                app.group().create(new GroupData().withName("test1"));
             }
-            app.getNavigationHelper().gotoHomePage();
-            app.getContactHelper().createContact(
-                    new ContactData(
-                            "Ivan",
-                            "Ivanov",
-                            "My Company",
-                            "My Address",
-                            "My home telephone",
-                            "my_email@gmail.com",
-                            "[none]"));
+            app.goTo().homePage();
+            app.contact().create(
+                    new ContactData().withFirstname("Ivan").withFirstname("Ivanov").withCompany("My Company")
+                            .withAddress("My Address").withHomePhone("My home telephone")
+                            .withEmail("my_email@gmail.com").withGroup("[none]"));
         }
-        app.getNavigationHelper().gotoGroupPage();
-        List<GroupData> groups = app.getGroupHelper().getGroupList();
-        app.getNavigationHelper().gotoHomePage();
-        for (GroupData group : groups) {
-            app.getNavigationHelper().gotoGroupContacts(group.getId());
-            if (app.getContactHelper().isThereAContact()) {
-                List<ContactData> contactsInGroupBefore = app.getContactHelper().getContactList();
-                app.getContactHelper().selectContact(contactsInGroupBefore.size() - 1);
-                app.getContactHelper().submitContactRemove();
-                app.getNavigationHelper().gotoHomePage();
-                app.getNavigationHelper().gotoGroupContacts(group.getId());
-                List<ContactData> contactsInGroupAfter = app.getContactHelper().getContactList();
+    }
 
-                Assert.assertEquals(contactsInGroupAfter.size(), contactsInGroupBefore.size() - 1);
-                contactsInGroupBefore.remove(contactsInGroupBefore.size() - 1);
-                Comparator<? super ContactData> byId = (c1, c2) -> Integer.compare(c1.getId(), c2.getId());
-                contactsInGroupBefore.sort(byId);
-                contactsInGroupAfter.sort(byId);
-                Assert.assertEquals(contactsInGroupBefore, contactsInGroupAfter);
+    @Test
+    public void testContactRemoveFromGroup() throws InterruptedException {
+        app.goTo().groupPage();
+        Iterator<GroupData> groups = app.group().all().iterator();
+        app.goTo().homePage();
+        while (groups.hasNext()) {
+            GroupData group = groups.next();
+            app.goTo().groupContacts(group.id());
+            if (app.contact().all().size() > 0) {
+                Contacts contactsBefore = app.contact().all();
+                ContactData contact = contactsBefore.iterator().next();
+                app.contact().selectContactById(contact.id());
+                app.contact().submitContactRemove();
+                app.goTo().homePage();
+                app.goTo().groupContacts(group.id());
+                Contacts contactsAfter = app.contact().all();
+
+                assertThat(contactsAfter.size(), equalTo(contactsBefore.size() - 1));
+                assertThat(contactsAfter, equalTo(contactsBefore.without(contact)));
                 break;
             }
         }

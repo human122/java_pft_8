@@ -10,7 +10,7 @@ public class NavigationHelper extends HelperBase {
         super(wd);
     }
 
-    public void gotoGroupPage() {
+    public void groupPage() {
         if (isElementPresent(By.tagName("h1"))
                 && wd.findElement(By.tagName("h1")).getText().equals("Group")
                 && isElementPresent(By.name("new"))) {
@@ -19,21 +19,18 @@ public class NavigationHelper extends HelperBase {
         click(By.linkText("groups"));
     }
 
-    public void gotoHomePage() {
+    public void homePage() {
         if (isElementPresent(By.id("maintable"))){
             return;
         }
         click(By.linkText("home"));
     }
 
-    public void gotoGroupContacts(int groupId) {
-        new Select(wd.findElement(By.name("group"))).selectByValue(Integer.toString(groupId));
-    }
-
-    public void gotoGroupContacts(String groupId) {
+    public void homePage(String groupId) {
         new Select(wd.findElement(By.name("group"))).selectByValue(groupId);
     }
 
-
-
+    public void groupContacts(int groupId) {
+        new Select(wd.findElement(By.name("group"))).selectByValue(Integer.toString(groupId));
+    }
 }
