@@ -10,7 +10,13 @@ public class ContactData {
     private String company;
     private String address;
     private String homePhone;
+    private String mobilePhone;
+    private String workPhone;
+    private String allPhones;
     private String email;
+    private String email2;
+    private String email3;
+    private String allEmails;
     private String group;
     private Set<GroupData> groups = new HashSet<GroupData>();
 
@@ -41,8 +47,32 @@ public class ContactData {
         return homePhone;
     }
 
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
+
+    public String getAllPhones() {
+        return allPhones;
+    }
+
+    public String getWorkPhone() {
+        return workPhone;
+    }
+
     public String getEmail() {
         return email;
+    }
+
+    public String getEmail2() {
+        return email2;
+    }
+
+    public String getEmail3() {
+        return email3;
+    }
+
+    public String getAllEmails() {
+        return allEmails;
     }
 
     public String getGroup() {
@@ -78,8 +108,38 @@ public class ContactData {
         return this;
     }
 
+    public ContactData withMobilePhone(String mobilePhone) {
+        this.mobilePhone = mobilePhone;
+        return this;
+    }
+
+    public ContactData withWorkPhone(String workPhone) {
+        this.workPhone = workPhone;
+        return this;
+    }
+
+    public ContactData withAllPhones(String allPhones) {
+        this.allPhones = allPhones;
+        return this;
+    }
+
     public ContactData withEmail(String email) {
         this.email = email;
+        return this;
+    }
+
+    public ContactData withEmail2(String email) {
+        this.email2 = email;
+        return this;
+    }
+
+    public ContactData withEmail3(String email) {
+        this.email3 = email;
+        return this;
+    }
+
+    public ContactData withAllEmails(String allEmails) {
+        this.allEmails = allEmails;
         return this;
     }
 

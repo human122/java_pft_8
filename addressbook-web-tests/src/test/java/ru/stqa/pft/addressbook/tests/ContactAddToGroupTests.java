@@ -40,16 +40,16 @@ public class ContactAddToGroupTests extends TestBase {
         while (groups.hasNext()) {
             GroupData group = groups.next();
             app.goTo().groupContacts(group.id());
-            Contacts contactsBefore = app.contact().all();
+            Contacts contactsBefore = app.contact().all(false);
             if (contactsBefore.size() == 0) {
                 app.goTo().homePage(allGroups);
                 ContactData contact = contacts.iterator().next();
                 app.contact().addToGroup(contact.id(), group.id());
                 app.goTo().homePage();
                 app.goTo().groupContacts(group.id());
-                Contacts contactsAfter = app.contact().all();
+                assertThat(app.contact().count(), equalTo(contactsBefore.size() + 1));
+                Contacts contactsAfter = app.contact().all(false);
 
-                assertThat(contactsAfter.size(), equalTo(contactsBefore.size() + 1));
                 assertThat(contactsAfter, equalTo(contactsBefore.withAdded(contact)));
                 break;
             } else if (contacts.size() > contactsBefore.size()) {
@@ -59,9 +59,9 @@ public class ContactAddToGroupTests extends TestBase {
                         app.contact().addToGroup(contact.id(), group.id());
                         app.goTo().homePage();
                         app.goTo().groupContacts(group.id());
-                        Contacts contactsAfter = app.contact().all();
+                        assertThat(app.contact().count(), equalTo(contactsBefore.size() + 1));
+                        Contacts contactsAfter = app.contact().all(false);
 
-                        assertThat(contactsAfter.size(), equalTo(contactsBefore.size() + 1));
                         assertThat(contactsAfter, equalTo(contactsBefore.withAdded(contact)));
                         break;
                     }

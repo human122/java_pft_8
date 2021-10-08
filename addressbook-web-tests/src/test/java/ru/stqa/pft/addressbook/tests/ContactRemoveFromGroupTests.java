@@ -37,15 +37,15 @@ public class ContactRemoveFromGroupTests extends TestBase {
             GroupData group = groups.next();
             app.goTo().groupContacts(group.id());
             if (app.contact().all().size() > 0) {
-                Contacts contactsBefore = app.contact().all();
+                Contacts contactsBefore = app.contact().all(false);
                 ContactData contact = contactsBefore.iterator().next();
                 app.contact().selectContactById(contact.id());
                 app.contact().submitContactRemove();
                 app.goTo().homePage();
                 app.goTo().groupContacts(group.id());
-                Contacts contactsAfter = app.contact().all();
+                assertThat(app.contact().count(), equalTo(contactsBefore.size() - 1));
+                Contacts contactsAfter = app.contact().all(false);
 
-                assertThat(contactsAfter.size(), equalTo(contactsBefore.size() - 1));
                 assertThat(contactsAfter, equalTo(contactsBefore.without(contact)));
                 break;
             }

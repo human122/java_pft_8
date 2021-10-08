@@ -8,11 +8,10 @@ import ru.stqa.pft.addressbook.model.GroupData;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.testng.Assert.assertEquals;
 
 public class ContactCreationTests extends TestBase {
 
-  @BeforeMethod(enabled = false)
+  @BeforeMethod(enabled = true)
   public void ensurePreconditions() {
     app.goTo().groupPage();
     if (app.group().all().size() == 0) {
@@ -30,8 +29,8 @@ public class ContactCreationTests extends TestBase {
             .withHomePhone("My home telephone").withEmail("my_email@gmail.com").withGroup("[none]");
     app.contact().create(contact);
     app.goTo().homePage();
+    assertThat(app.contact().count(), equalTo(before.size() + 1));
     Contacts after = app.contact().all();
-    assertEquals(after.size(), before.size() + 1);
 
     assertThat(after, equalTo(
             before.withAdded(contact.withId(after.stream().mapToInt((c) -> c.id()).max().getAsInt()))));
