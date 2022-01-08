@@ -6,21 +6,5 @@
     "address": "Address 0",
     "homePhone": "Home phone 0",
     "email": "Email 0"
-  },
-  {
-    "firstname": "Name 1",
-    "lastname": "Lastname 1",
-    "company": "Company 1",
-    "address": "Address 1",
-    "homePhone": "Home phone 1",
-    "email": "Email 1"
-  },
-  {
-    "firstname": "Name 2",
-    "lastname": "Lastname 2",
-    "company": "Company 2",
-    "address": "Address 2",
-    "homePhone": "Home phone 2",
-    "email": "Email 2"
   }
 ]
