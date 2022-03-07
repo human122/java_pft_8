@@ -4,7 +4,9 @@
     "lastname": "Lastname 0",
     "company": "Company 0",
     "address": "Address 0",
-    "homePhone": "Home phone 0",
-    "email": "Email 0"
+    "homePhone": "+7 (909) 12-050",
+    "mobilePhone": "+7 (903) 21-150",
+    "workPhone": "",
+    "email": "email0@example.com"
   }
 ]

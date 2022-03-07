@@ -13,11 +13,10 @@ public class ContactDeletionTests extends TestBase {
 
     @BeforeMethod
     public void ensurePreconditions() {
-        if (app.contact().all().size() == 0) {
+        if (app.db().contacts().size() == 0
+                || app.db().groups().size() == 0) {
             app.goTo().groupPage();
-            if (app.group().all().size() == 0) {
-                app.group().create(new GroupData().withName("test1").withHeader("test2").withFooter("test3"));
-            }
+            app.group().create(new GroupData().withName("test1").withHeader("test2").withFooter("test3"));
             app.goTo().homePage();
             app.contact().create(
                     new ContactData()
@@ -29,14 +28,14 @@ public class ContactDeletionTests extends TestBase {
 
     @Test
     public void testContactDeletion() throws Exception {
+        Contacts before = app.db().contacts();
         app.goTo().homePage();
-        Contacts before = app.contact().all();
         ContactData deletedContact = before.iterator().next();
         app.contact().delete(deletedContact);
         app.goTo().homePage();
         Thread.sleep(2000);
         assertThat(app.contact().count(), equalTo(before.size() - 1));
-        Contacts after = app.contact().all();
+        Contacts after = app.db().contacts();
 
         assertThat(after, equalTo(before.without(deletedContact)));
     }

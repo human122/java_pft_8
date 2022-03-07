@@ -17,14 +17,14 @@ public class ContactAddToGroupTests extends TestBase {
 
     @BeforeMethod
     public void ensurePreconditions() {
-        if (app.contact().all().size() == 0) {
+        if (app.db().contacts().size() == 0
+                || app.db().groups().size() == 0) {
             app.goTo().groupPage();
-            if (app.group().all().size() == 0) {
-                app.group().create(new GroupData().withName("test1"));
-            }
+            app.group().create(new GroupData().withName("test1"));
             app.goTo().homePage();
             app.contact().create(
-                    new ContactData().withFirstname("Ivan").withLastname("Ivanov").withCompany("My Company")
+                    new ContactData()
+                            .withFirstname("Ivan").withLastname("Ivanov").withCompany("My Company")
                             .withAddress("My Address").withHomePhone("My home telephone")
                             .withEmail("my_email@gmail.com").withGroup("[none]"));
         }
@@ -32,15 +32,15 @@ public class ContactAddToGroupTests extends TestBase {
 
     @Test
     public void testContactAddToGroup() throws Exception {
-        app.goTo().groupPage();
-        Iterator<GroupData> groups = app.group().all().iterator();
+//        app.goTo().groupPage();
         app.goTo().homePage();
-        Set<ContactData> contacts = app.contact().all();
+        Iterator<GroupData> groups = app.db().groups().iterator();
+        Set<ContactData> contacts = app.db().contacts();
         String allGroups = "";
         while (groups.hasNext()) {
             GroupData group = groups.next();
             app.goTo().groupContacts(group.id());
-            Contacts contactsBefore = app.contact().all(false);
+            Contacts contactsBefore = app.db().contacts();
             if (contactsBefore.size() == 0) {
                 app.goTo().homePage(allGroups);
                 ContactData contact = contacts.iterator().next();
@@ -48,7 +48,7 @@ public class ContactAddToGroupTests extends TestBase {
                 app.goTo().homePage();
                 app.goTo().groupContacts(group.id());
                 assertThat(app.contact().count(), equalTo(contactsBefore.size() + 1));
-                Contacts contactsAfter = app.contact().all(false);
+                Contacts contactsAfter = app.db().contacts();
 
                 assertThat(contactsAfter, equalTo(contactsBefore.withAdded(contact)));
                 break;

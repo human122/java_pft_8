@@ -27,6 +27,8 @@ public class ContactHelper extends HelperBase {
         type(By.name("company"), contactData.getCompany());
         type(By.name("address"), contactData.getAddress());
         type(By.name("home"), contactData.getHomePhone());
+        type(By.name("mobile"), contactData.getMobilePhone());
+        type(By.name("work"), contactData.getWorkPhone());
         type(By.name("email"), contactData.getEmail());
         attach(By.name("photo"), contactData.getPhoto());
 
@@ -126,7 +128,9 @@ public class ContactHelper extends HelperBase {
             int id = Integer.parseInt(cells.get(0).findElement(By.tagName("input")).getAttribute("value"));
             String lastName = row.findElement(By.xpath("td[2]")).getText();
             String firstName = row.findElement(By.xpath("td[3]")).getText();
-            ContactData contact = new ContactData().withId(id).withFirstname(firstName).withLastname(lastName);
+            String address = row.findElement(By.xpath("td[4]")).getText();
+            ContactData contact = new ContactData().withId(id).withFirstname(firstName).withLastname(lastName)
+                    .withAddress(address);
             contactCache.add(contact);
         }
         return new Contacts(contactCache);
